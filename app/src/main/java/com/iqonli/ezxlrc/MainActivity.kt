@@ -539,7 +539,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun scroll(child: View): ScrollView = ScrollView(this).apply {
         isFillViewport = true
-        addView(child, ScrollView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        addView(child, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
     }
 
     private fun bodyText(value: String): TextView = TextView(this).apply {
