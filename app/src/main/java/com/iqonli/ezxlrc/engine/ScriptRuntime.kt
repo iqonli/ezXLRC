@@ -309,9 +309,9 @@ class ScriptRuntime(context: Context) {
     }.getOrDefault("")
 
     private fun parseHtml(html: String): String = runCatching {
-        val body = Jsoup.parse(html).body()
+        val document = Jsoup.parse(html)
         val children = JSONArray()
-        body.childNodes().forEach { node -> nodeToJson(node)?.let(children::put) }
+        document.childNodes().forEach { node -> nodeToJson(node)?.let(children::put) }
         children.toString()
     }.getOrDefault("[]")
 

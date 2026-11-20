@@ -15,6 +15,11 @@ assert len(MANIFEST["sources"]) == 27, "Pinned upstream manifest changed unexpec
 assert len(INDEX["sources"]) == 30, "Expected 27 upstream and 3 bundled Library searchers"
 
 legacy = {}
+import hashlib
+actual_sha256 = hashlib.sha256(LEGACY_ZIP.read_bytes()).hexdigest()
+assert actual_sha256 == INDEX["library"]["bundledSha256"], (
+    f"Bundled legacy archive checksum mismatch: {actual_sha256}"
+)
 with zipfile.ZipFile(LEGACY_ZIP) as archive:
     names = set(archive.namelist())
     required = {

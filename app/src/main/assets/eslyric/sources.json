@@ -8,7 +8,7 @@
     "archive": "Library/eslscripts.zip",
     "archiveSha256": "714f2ef3ea1684f4f6be8907ee1bc54044ca44c3eb013db8653af320801ee4a7",
     "bundledArchive": "library-searchers.zip",
-    "bundledSha256": "801bd56f9d59f9988151d1b3d9aad0855b655a3ea340538e44a143adcce77247",
+    "bundledSha256": "dd4c85e9381f99794c919a90fbd1be720231fbf1941c368e2b357bf9cf6c1778",
     "activeLegacySearchers": [
       "kuwo.js",
       "netease_ex.js",
