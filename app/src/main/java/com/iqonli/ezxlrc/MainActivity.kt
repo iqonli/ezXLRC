@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.util.TypedValue
@@ -36,10 +37,11 @@ import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
     private lateinit var repository: ScriptRepository
-    private lateinit var runtime: ScriptRuntime
+    private var runtime: ScriptRuntime? = null
     private lateinit var contentFrame: FrameLayout
     private lateinit var tabs: TabLayout
-    private lateinit var webView: WebView
+    private var webView: WebView? = null
+    private var searchEngineAvailable = false
 
     private lateinit var sourceSpinner: Spinner
     private lateinit var searchStatus: TextView
@@ -66,9 +68,6 @@ class MainActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, true)
         repository = ScriptRepository(this)
         buildApplicationUi()
-        runtime.initialize {
-            searchStatus.text = "搜索引擎已就绪。正在检查歌词源更新…"
-        }
         refreshSourceList(repository.getSources())
         updateSources(force = false)
     }
@@ -109,12 +108,6 @@ class MainActivity : AppCompatActivity() {
         contentFrame = FrameLayout(this)
         root.addView(contentFrame, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
 
-        webView = WebView(this).apply {
-            alpha = 0f
-            isFocusable = false
-            isFocusableInTouchMode = false
-        }
-        runtime = ScriptRuntime(this, webView)
         setContentView(root)
 
         val searchPage = buildSearchPage()
@@ -132,7 +125,43 @@ class MainActivity : AppCompatActivity() {
     private fun showPage(page: View) {
         contentFrame.removeAllViews()
         contentFrame.addView(page, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
-        contentFrame.addView(webView, FrameLayout.LayoutParams(dp(1), dp(1), Gravity.BOTTOM or Gravity.END))
+        webView?.let { hiddenWebView ->
+            (hiddenWebView.parent as? ViewGroup)?.removeView(hiddenWebView)
+            contentFrame.addView(hiddenWebView, FrameLayout.LayoutParams(dp(1), dp(1), Gravity.BOTTOM or Gravity.END))
+        }
+    }
+
+    private fun initializeSearchEngine() {
+        try {
+            val hiddenWebView = WebView(this).apply {
+                alpha = 0f
+                isFocusable = false
+                isFocusableInTouchMode = false
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
+                }
+            }
+            val scriptRuntime = ScriptRuntime(this, hiddenWebView)
+            webView = hiddenWebView
+            runtime = scriptRuntime
+            if (::contentFrame.isInitialized) {
+                (hiddenWebView.parent as? ViewGroup)?.removeView(hiddenWebView)
+                contentFrame.addView(hiddenWebView, FrameLayout.LayoutParams(dp(1), dp(1), Gravity.BOTTOM or Gravity.END))
+            }
+            scriptRuntime.initialize {
+                searchEngineAvailable = true
+                searchStatus.text = "搜索引擎已就绪。正在检查歌词源更新…"
+            }
+        } catch (error: Throwable) {
+            searchEngineAvailable = false
+            webView = null
+            runtime = null
+            android.util.Log.e("ezXLRC", "Search engine initialization failed", error)
+            if (::searchStatus.isInitialized) {
+                val reason = listOfNotNull(error.javaClass.simpleName, error.message?.take(120)).joinToString(": ")
+                searchStatus.text = "搜索引擎初始化失败，已禁用在线搜索。\n$reason"
+            }
+        }
     }
 
     private fun buildSearchPage(): View {
@@ -334,8 +363,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun startSearch(targets: List<LyricSource>) {
         if (searchInProgress) return
-        if (!runtime.isReady) {
-            searchStatus.text = "搜索引擎尚未就绪。"
+        val activeRuntime = runtime
+        if (activeRuntime == null) {
+            initializeSearchEngine()
+            searchStatus.text = "正在初始化搜索引擎，请稍后再试一次。"
+            return
+        }
+        if (!searchEngineAvailable || !activeRuntime.isReady) {
+            searchStatus.text = "搜索引擎尚未就绪，或当前设备上的 WebView 初始化失败。"
             return
         }
         if (targets.isEmpty()) {
@@ -398,7 +433,7 @@ class MainActivity : AppCompatActivity() {
             runNextSearcher(targets, meta)
             return
         }
-        runtime.run(source, script, meta) { results, error ->
+        runtime?.run(source, script, meta) { results, error ->
             results.forEach { result ->
                 collectedResults += result
                 addResultCard(result)
@@ -577,7 +612,7 @@ class MainActivity : AppCompatActivity() {
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density + 0.5f).toInt()
 
     override fun onDestroy() {
-        if (::runtime.isInitialized) runtime.destroy()
+        runtime?.destroy()
         super.onDestroy()
     }
 
