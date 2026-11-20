@@ -117,7 +117,7 @@ jobs:
       - name: Upload signed APK
         uses: actions/upload-artifact@v4
         with:
-          name: ezXLRC-1.0.0-iqonli-1-signed
+          name: ezXLRC-1.0.1-iqonli-1-signed
           path: |
             app/build/outputs/apk/release/app-release.apk
             app-release.apk.sha256
