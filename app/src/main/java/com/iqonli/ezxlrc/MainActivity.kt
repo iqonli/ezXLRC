@@ -244,7 +244,7 @@ class MainActivity : AppCompatActivity() {
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
             setPadding(dp(12), dp(12), dp(12), dp(12))
         }
-        editorLayout.addView(editorInput, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(330)))
+        editorLayout.addView(editorInput, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(330)))
         column.addView(editorLayout, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) })
 
         val intervalRow = horizontalRow()
@@ -274,7 +274,7 @@ class MainActivity : AppCompatActivity() {
             minLines = 3
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
         }
-        segmentLayout.addView(segmentationInput, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(92)))
+        segmentLayout.addView(segmentationInput, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(92)))
         column.addView(segmentLayout, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) })
         val customRow = horizontalRow()
         customRow.addView(makeButton("自定义递进 LRC", false) {
@@ -308,7 +308,7 @@ class MainActivity : AppCompatActivity() {
             inputType = InputType.TYPE_CLASS_NUMBER
             setText("2")
         }
-        nLayout.addView(nInput)
+        nLayout.addView(nInput, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         column.addView(nLayout, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(10) })
         column.addView(makeButton("删除重复时间码的第 n 行", true) {
             val n = nInput.text?.toString()?.toIntOrNull() ?: 2
@@ -343,7 +343,7 @@ class MainActivity : AppCompatActivity() {
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
             setPadding(dp(12), dp(9), dp(12), dp(9))
         }
-        layout.addView(edit, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        layout.addView(edit, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         parent.addView(layout, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { bottomMargin = dp(8) })
         return edit
     }
