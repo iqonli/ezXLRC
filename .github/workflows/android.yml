@@ -9,24 +9,29 @@ permissions:
   contents: read
 
 concurrency:
-  group: android-${{ github.ref }}
-  cancel-in-progress: true
+  group: ezxlrc-android-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   build:
+    name: Audit, tests and signed APK
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      MCX_KEYSTORE_B64: ${{ secrets.MCX_KEYSTORE_B64 }}
+      MCX_STORE_PASSWORD: ${{ secrets.MCX_STORE_PASSWORD }}
+      MCX_KEY_PASSWORD: ${{ secrets.MCX_KEY_PASSWORD }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Extract Android source
-        run: tar -xJf ezXLRC-source.tar.xz -C .
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
+          cache: gradle
 
       - name: Set up Gradle 8.13
         uses: gradle/actions/setup-gradle@v4
@@ -39,13 +44,107 @@ jobs:
       - name: Install Android SDK packages
         run: sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools"
 
-      - name: Static checks and build
-        run: gradle --no-daemon testDebugUnitTest lintDebug assembleDebug --stacktrace
+      - name: Static source audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          import xml.etree.ElementTree as ET
 
-      - name: Upload APK
+          root = Path('.')
+          xml_files = list(root.rglob('*.xml'))
+          for path in xml_files:
+              ET.parse(path)
+          assert (root / 'app/src/main/AndroidManifest.xml').is_file()
+          assert (root / 'app/src/main/assets/engine.html').is_file()
+          assert (root / 'app/src/main/java/com/iqonli/ezxlrc/MainActivity.kt').is_file()
+          html = (root / 'app/src/main/assets/engine.html').read_text(encoding='utf-8')
+          scripts = re.findall(r'<script>(.*?)</script>', html, re.S)
+          assert len(scripts) == 1, 'Expected exactly one embedded runtime script'
+          Path('/tmp/ezxlrc-runtime.js').write_text(scripts[0], encoding='utf-8')
+          for path in root.rglob('*'):
+              if path.is_file() and path.suffix in {'.kt', '.kts', '.xml', '.html', '.md', '.yml', '.sh'}:
+                  text = path.read_text(encoding='utf-8', errors='replace')
+                  if '\x00' in text:
+                      raise SystemExit(f'NUL byte found in text source: {path}')
+          print(f'Validated {len(xml_files)} XML files and embedded runtime source.')
+          PY
+          node --check /tmp/ezxlrc-runtime.js
+          node tools/runtime_smoke_test.js
+          python3 tools/validate_upstream_searchers.py
+
+      - name: Prepare original iqonli-1 signing key
+        shell: bash
+        run: |
+          set -euo pipefail
+          : "${MCX_KEYSTORE_B64:?Missing repository/org secret MCX_KEYSTORE_B64}"
+          : "${MCX_STORE_PASSWORD:?Missing repository/org secret MCX_STORE_PASSWORD}"
+          : "${MCX_KEY_PASSWORD:?Missing repository/org secret MCX_KEY_PASSWORD}"
+          umask 077
+          keyfile="$RUNNER_TEMP/iqonli-1.jks"
+          printf '%s' "$MCX_KEYSTORE_B64" | base64 --decode > "$keyfile"
+          test -s "$keyfile"
+          chmod 600 "$keyfile"
+          {
+            echo "IQONLI_KEYSTORE_PATH=$keyfile"
+            echo "IQONLI_STORE_PASSWORD=$MCX_STORE_PASSWORD"
+            echo "IQONLI_KEY_PASSWORD=$MCX_KEY_PASSWORD"
+            echo "IQONLI_KEY_ALIAS=iqonli-1"
+          } >> "$GITHUB_ENV"
+
+      - name: Run unit tests, Android Lint and build signed release APK
+        run: gradle --no-daemon --warning-mode all clean testDebugUnitTest lintDebug assembleRelease --stacktrace
+
+      - name: Verify iqonli-1 signature
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk="app/build/outputs/apk/release/app-release.apk"
+          test -s "$apk"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$apk" | tee "$RUNNER_TEMP/ezxlrc-signature.txt"
+          actual="$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' "$RUNNER_TEMP/ezxlrc-signature.txt" | head -n 1 | tr -d ':' | tr '[:upper:]' '[:lower:]')"
+          expected='4c281c59b8e1e8a9fb5b16020540128dcca608329255609ce9881fd9b75d12e1'
+          if [[ "$actual" != "$expected" ]]; then
+            echo "Wrong signing certificate. Expected iqonli-1 $expected; got ${actual:-none}." >&2
+            exit 1
+          fi
+          sha256sum "$apk" > app-release.apk.sha256
+          echo "Verified iqonli-1 certificate: $actual"
+
+      - name: Upload signed APK
         uses: actions/upload-artifact@v4
         with:
-          name: ezXLRC-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: ezXLRC-1.0.0-iqonli-1-signed
+          path: |
+            app/build/outputs/apk/release/app-release.apk
+            app-release.apk.sha256
           if-no-files-found: error
           retention-days: 3
+          compression-level: 0
+
+      - name: Upload source archive
+        if: always()
+        shell: bash
+        run: |
+          tar --exclude='.git' --exclude='.gradle' --exclude='build' --exclude='*/build' \
+            -czf "$RUNNER_TEMP/ezXLRC-source.tar.gz" .
+
+      - name: Upload source and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ezXLRC-source-and-reports
+          path: |
+            ${{ runner.temp }}/ezXLRC-source.tar.gz
+            app/build/reports/tests/testDebugUnitTest/
+            app/build/reports/lint-results-debug.html
+            app/build/reports/lint-results-debug.xml
+            ${{ runner.temp }}/ezxlrc-signature.txt
+          if-no-files-found: ignore
+          retention-days: 3
+
+      - name: Remove temporary signing key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/iqonli-1.jks"

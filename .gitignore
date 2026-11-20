@@ -1,0 +1,27 @@
+.gradle/
+.idea/
+local.properties
+build/
+**/build/
+*.iml
+.DS_Store
+
+__pycache__/
+*.pyc
+
+# Signing material must never enter source archives or Git.
+*.jks
+*.keystore
+*.p12
+signing.properties
+
+
+# Local signing material: never commit or upload.
+signing/
+*.jks
+*.keystore
+*.p12
+signing.properties
+signing.env
+*private-signing*.zip
+*iqonli-1-password*

@@ -6,7 +6,7 @@ Lyrics searcher scripts are downloaded at runtime from:
 
 https://github.com/ESLyric/scripts
 
-The app reads archive/version.json and downloads only the listed searcher/*.js files. It does not redistribute those scripts in this source archive. The repository does not currently provide a top-level LICENSE. Copyright and applicable terms remain with each script's author.
+The app reads `archive/version.json` and downloads only the listed `searcher/*.js` files. It does not redistribute those scripts in this source archive. The repository does not currently provide a top-level LICENSE. Copyright and applicable terms remain with each script's author.
 
 The separate repository https://github.com/ESLyric/release contains foobar2000 plugin releases and is not used by ezXLRC.
 
