@@ -26,11 +26,20 @@ class ScriptRepository(context: Context) {
                     appContext.assets.open("eslyric/${source.uri}").bufferedReader(StandardCharsets.UTF_8).use { it.readText() }
                 else -> null
             }
-            if (script != null) scriptCache.putIfAbsent(source.uri, script)
-            script
+            val normalized = script?.let { normalizeSource(source.uri, it) }
+            if (normalized != null) scriptCache.putIfAbsent(source.uri, normalized)
+            normalized
         }.onFailure {
             Log.e("ezXLRC.Scripts", "Unable to load bundled script ${source.uri}", it)
         }.getOrNull()
+    }
+
+    private fun normalizeSource(uri: String, script: String): String {
+        if (!uri.endsWith("/qqmusic.js") && !uri.endsWith("/qqmusic_ex.js")) return script
+        return script
+            .replace("singerName : btoa(song.album)", "singerName : btoaUtf8(song.artist)")
+            .replace("songName : btoa(song.artist)", "songName : btoaUtf8(song.title)")
+            .replace("albumName : btoa(song.album)", "albumName : btoaUtf8(song.album)")
     }
 
     private fun loadSources(): List<LyricSource> = runCatching {

@@ -185,6 +185,10 @@
   global.btoa = function (value) {
     return base64Encode(latin1Bytes(value));
   };
+  global.btoaUtf8 = function (value) {
+    return base64Encode(utf8Bytes(String(value)));
+  };
+
   global.atob = function (value) {
     return latin1String(base64Decode(value));
   };

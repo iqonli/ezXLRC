@@ -54,6 +54,7 @@ vm.runInThisContext(runtime, { filename: "ezxlrc-runtime.js" });
 assert.equal(globalThis.querystring.stringify({ a: "hello world", b: 2 }), "a=hello%20world&b=2");
 assert.deepEqual(globalThis.querystring.parse("a=1&a=2"), { a: ["1", "2"] });
 assert.equal(globalThis.atob(globalThis.btoa("abc")), "abc");
+assert.equal(globalThis.btoaUtf8("中文"), Buffer.from("中文", "utf8").toString("base64"));
 assert.equal(globalThis.CryptoES.MD5("abc").toString(), "900150983cd24fb0d6963f7d28e17f72");
 
 const key = globalThis.CryptoES.enc.Latin1.parse("1234567890123456");
