@@ -65,14 +65,25 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        CrashDiagnostics.markStage(this, "MainActivity.onCreate: entered")
         WindowCompat.setDecorFitsSystemWindows(window, true)
+        CrashDiagnostics.markStage(this, "MainActivity.onCreate: window configured")
         repository = ScriptRepository(this)
+        CrashDiagnostics.markStage(this, "MainActivity.onCreate: ScriptRepository created")
         buildApplicationUi()
-        refreshSourceList(repository.getSources())
-        updateSources(force = false)
+        CrashDiagnostics.markStage(this, "MainActivity.onCreate: UI built")
+        val cachedSources = repository.getSources()
+        refreshSourceList(cachedSources)
+        searchStatus.text = if (cachedSources.isEmpty()) {
+            "尚无本地歌词源。点击“更新歌词源”下载。"
+        } else {
+            "已加载 ${cachedSources.size} 个本地歌词源。需要时可手动更新。"
+        }
+        CrashDiagnostics.markStage(this, "MainActivity.onCreate: completed without startup network sync")
     }
 
     private fun buildApplicationUi() {
+        CrashDiagnostics.markStage(this, "buildApplicationUi: entered")
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(Color.rgb(248, 249, 251))
@@ -109,10 +120,14 @@ class MainActivity : AppCompatActivity() {
         root.addView(contentFrame, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
 
         setContentView(root)
+        CrashDiagnostics.markStage(this, "buildApplicationUi: root attached")
 
         val searchPage = buildSearchPage()
+        CrashDiagnostics.markStage(this, "buildApplicationUi: search page built")
         val editorPage = buildEditorPage()
+        CrashDiagnostics.markStage(this, "buildApplicationUi: editor page built")
         val toolsPage = buildToolsPage()
+        CrashDiagnostics.markStage(this, "buildApplicationUi: tools page built")
         val pages = listOf(searchPage, editorPage, toolsPage)
         tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) = showPage(pages[tab.position])
@@ -120,6 +135,7 @@ class MainActivity : AppCompatActivity() {
             override fun onTabReselected(tab: TabLayout.Tab) = Unit
         })
         showPage(searchPage)
+        CrashDiagnostics.markStage(this, "buildApplicationUi: first page shown")
     }
 
     private fun showPage(page: View) {
@@ -342,8 +358,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateSources(force: Boolean) {
         if (::searchStatus.isInitialized) searchStatus.text = if (force) "正在更新 ESLyric 歌词源…" else "正在检查 ESLyric 歌词源…"
+        CrashDiagnostics.markStage(this, "updateSources: sync requested")
         repository.sync(force) { report ->
             if (isFinishing || isDestroyed) return@sync
+            CrashDiagnostics.markStage(this, "updateSources: sync callback")
             refreshSourceList(report.sources)
             val base = "歌词源：${report.sources.size} 个；新增下载 ${report.downloaded} 个，缓存复用 ${report.unchanged} 个。"
             searchStatus.text = if (report.errors.isEmpty()) base else base + "\n" + report.errors.take(4).joinToString("\n")
