@@ -1,0 +1,346 @@
+{
+    "sources": [
+        {
+            "name": "酷狗音乐",
+            "version": "0.1",
+            "author": "anonymous",
+            "uri": "kugou.js",
+            "dependency": {
+                "parsers": [
+                    "KRC Parser"
+                ]
+            }
+        },
+        {
+            "name": "Musixmatch (Synced)",
+            "version": "0.3",
+            "author": "Community",
+            "uri": "musixmatch.js",
+            "dependency": {
+                "client": "0.5.2.1120",
+                "libs": [
+                    "querystring"
+                ]
+            }
+        },
+        {
+            "name": "网易云音乐",
+            "version": "0.3",
+            "author": "ohyeah",
+            "uri": "netease.js",
+            "dependency": {
+                "libs": [
+                    "CryptoES",
+                    "querystring"
+                ]
+            }
+        },
+        {
+            "name": "NetEase - English (Synced)",
+            "version": "0.4",
+            "author": "ohyeah & TT",
+            "uri": "netease_en.js",
+            "dependency": {
+                "libs": [
+                    "CryptoES",
+                    "querystring"
+                ]
+            }
+        },
+        {
+            "name": "QQ音乐",
+            "version": "0.1",
+            "author": "ohyeah",
+            "uri": "qqmusic.js",
+            "dependency": {
+                "parsers": [
+                    "QRC Parser"
+                ],
+                "libs": [
+                    "querystring"
+                ]
+            }
+        },
+        {
+            "name": "MiniLyrics (Synced)",
+            "version": "0.5",
+            "author": "ohyeah & TT",
+            "uri": "minilyrics.js",
+            "dependency": {
+                "client": "0.5.2.1123",
+                "libs": [
+                    "CryptoES"
+                ]
+            }
+        },
+        {
+            "name": "LRCLIB (Mixed)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "lrclib.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "Genius (Unsynced)",
+            "version": "0.4",
+            "author": "Community",
+            "uri": "genius.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "AZLyrics (Unsynced)",
+            "version": "0.2",
+            "author": "ohyeah & TT",
+            "uri": "azlyrics.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "AbsoluteLyrics (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "absolutelyrics.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "Bandcamp (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "bandcamp.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "ChartLyrics (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "chartlyrics.js"
+        },
+        {
+            "name": "DarkLyrics (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "darklyrics.js"
+        },
+        {
+            "name": "eLyrics (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "elyrics.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "Letras (Unsynced)",
+            "version": "0.2",
+            "author": "TT",
+            "uri": "letras.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "Lyrical Nonsense - Japanese (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "lyricalnonsense.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "Lyrical Nonsense - English (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "lyricalnonsense_en.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "LyricsMania (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "lyricsmania.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "LyricsMode (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "lyricsmode.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "LyricsTranslate (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "lyricstranslate.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "OldieLyrics (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "oldielyrics.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "PLyrics (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "plyrics.js"
+        },
+        {
+            "name": "SongLyrics (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "songlyrics.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "STLyrics (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "stlyrics.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "Lololyrics (Unsynced)",
+            "version": "0.2",
+            "author": "TT",
+            "uri": "lololyrics.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "Metallum (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "metallum.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        },
+        {
+            "name": "SongMeanings (Unsynced)",
+            "version": "0.1",
+            "author": "TT",
+            "uri": "songmeanings.js",
+            "dependency": {
+                "libs": [
+                    "himalaya"
+                ]
+            }
+        }
+    ],
+    "parsers": [
+        {
+            "name": "KRC Parser",
+            "author": "ohyeah",
+            "version": "0.2",
+            "uri": "krc.js"
+        },
+        {
+            "name": "QRC Parser",
+            "author": "wistaria",
+            "version": "0.2",
+            "uri": "qrc.js",
+            "dependency": {
+                "client": "1.0.5.0",
+                "libs": [
+                    "Parser Extension"
+                ]
+            }
+        },
+        {
+            "name": "SRT Parser",
+            "author": "wistaria",
+            "version": "0.3",
+            "uri": "srt.js"
+        }
+    ],
+    "libs": [
+        {
+            "name": "CryptoES",
+            "uri": "crypto-es.zip",
+            "hash": "680bb848a95a7d50cdbfe44448709925"
+        },
+        {
+            "name": "querystring",
+            "uri": "querystring.zip",
+            "hash": "7e4932477468049a57c5f24f1164e9ad"
+        },
+        {
+            "name": "himalaya",
+            "uri": "himalaya.zip",
+            "hash": "ee00a9708d10de78c6efc818ef2a0bea"
+        },
+        {
+            "name": "Parser Extension",
+            "uri": "parser_ext.so.zip",
+            "hash": "5764e793e8d857cb3b517c2f56228a0c",
+            "x64":
+            {
+                "uri": "parser_ext.64.so.zip",
+                "hash":"fce3418a7e56e406922f6fccae935fb1"
+            }
+        }
+    ]
+}

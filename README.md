@@ -18,17 +18,17 @@ Android 原生歌词搜索与 LRC / XLRC 编辑工具。Kotlin + Material Compon
 - 删除重复时间码组中的第 N 行；按每行开头的第一个时间码分组，时间格式不同但实际时间相同的行也会归为一组，N 从 1 开始。
 - 时间标签支持 `mm:ss.xx` 和 `hh:mm:ss.xx`。
 
-## ESLyric 歌词源
+## ESLyric 歌词源与 JavaScript 运行时
 
-歌词搜索脚本来自 <https://github.com/ESLyric/scripts>。<https://github.com/ESLyric/release> 是 foobar2000 插件发行仓库，不是歌词搜索脚本仓库；ezXLRC 不从该仓库获取插件或界面资源。
+应用内置 30 个歌词搜索器：27 个来自官方 [ESLyric/scripts](https://github.com/ESLyric/scripts)，固定在提交 `32244ac30ffb8f6fd9ff6d03a1dcce389b5c1600%；另外 3 个是从 Library 中的 `eslscripts.zip` 提取的酷我、网易云音乐 Ex 和 QQ 音乐 Ex 搜索器。旧压缩包中与官方脚本重复的四个旧版本由官方版本替代。
 
-首次启动和手动更新时，应用读取 `ESLyric/scripts` 的 `archive/version.json`，只下载清单 `sources` 对应的 `searcher/*.js`，并使用 ETag 缓存。不会下载 `parser/`、`parser_ext.so`、插件二进制或上游依赖包。搜索脚本保存在应用私有目录；首次启动需要联网，脚本缓存后可离线打开、编辑和转换歌词，在线搜索仍需要网络。
+所有脚本都随源码和 APK 一起打包。应用启动时从 assets 读取脚本清单和脚本文件；没有脚本更新按钮，也不会在运行时访问 GitHub 下载脚本。在线搜索仍会向对应音乐服务发送歌词查询请求，离线时可以继续打开、编辑、转换和保存本地歌词。要更新搜索器，需要更新仓库内的脚本资源并重新构建 APK。
 
-Android 端自行实现搜索器所需的请求桥接和兼容接口，包括 querystring、CryptoES 所需的 MD5/AES-ECB、Himalaya HTML 解析、MXML XML 读取，以及 MiniLyrics 的二进制请求。QQ 音乐脚本下载后会定点修正歌曲字段错位和 UTF-8 Base64 参数。
+JavaScript 由嵌入式 QuickJS 执行，主界面、搜索结果、编辑器和修复工具均使用 Kotlin 与 Material Components 2 原生控件。项目不使用 WebView。Android 端通过 Kotlin 提供 HTTP 请求、AES-ECB、MD5、HTML/XML 解析和歌词数据桥接；HTML/XML 树由 Jsoup 解析，KRC/QRC/YRC 内容由应用内的 Kotlin 解码器处理。
 
-`ESLyric/scripts` 没有仓库级 LICENSE。本项目不把上游脚本复制进 MIT 源码包，也不声称这些脚本由本项目授权；应用运行时按上游清单下载，脚本版权及适用条款仍归各自作者。用户提供的旧版 ESLyric 压缩包只用于核对历史接口，没有打包进应用。
+旧压缩包中的 `parser_ext.so` 是 PE32+ Windows x64 DLL，不能用于 Android，因此没有打包。旧版 parser JS 不参与运行，相关格式由原生解码器处理。三个保留的旧搜索器位于 `app/src/main/assets/eslyric/library-searchers.zip`；清单记录了原始压缩包 SHA-256 和实际打包内容 SHA-256。
 
-QRC 解码逻辑参考 <https://github.com/WXRIW/QQMusicDecoder>，本项目使用 Kotlin/JCE 独立实现。第三方说明见 `THIRD_PARTY_NOTICES.md`。
+ESLyric/scripts 仓库没有仓库级 LICENSE。脚本原有作者与来源注释会保留，不能将它们视为本项目 MIT 代码。Library 中的 `netease_ex.js` 和 `qqmusic_ex.js` 标注 GPL-3.0；`kuwo.js` 没有附带明确许可证声明。第三方代码及许可情况见 `THIRD_PARTY_NOTICES.md` 和 `LICENSES/`。在公开发布包含这些搜索器的二进制包前，应确认相应作者的再分发许可。
 
 ## 构建
 
@@ -38,11 +38,11 @@ QRC 解码逻辑参考 <https://github.com/WXRIW/QQMusicDecoder>，本项目使�
 gradle --no-daemon clean testDebugUnitTest lintDebug assembleDebug
 ```
 
-GitHub Actions 在推送到 `main` 或手动触发时检查 Android XML、JavaScript 运行时和上游搜索器依赖，运行桥接冒烟测试、Kotlin 单元测试和 Android Lint，随后构建并验证 `iqonli-1` 签名的 Release APK；APK 与诊断报告保留 3 天。
+GitHub Actions 在推送到 `main` 或手动触发时检查 Android XML、内置 JavaScript 资源和脚本清单，运行 QuickJS 兼容层冒烟测试、Kotlin 单元测试和 Android Lint，随后构建并验证 `iqonli-1` 签名的 Release APK；构建过程不下载歌词脚本，APK 与诊断报告保留 3 天。
 
 ## 许可证
 
-本项目自行编写的代码使用 MIT License，见 `LICENSE`。运行时下载的第三方歌词源脚本不包含在本项目的 MIT 授权范围内。
+本项目自行编写的代码使用 MIT License，见 `LICENSE`。随 APK 打包的 ESLyric 搜索器及 Library 旧脚本按各自来源和许可证处理，不属于本项目 MIT 授权范围。
 
 ## Termux 本地构建与签名
 

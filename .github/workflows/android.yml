@@ -51,26 +51,24 @@ jobs:
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
-          import re
           import xml.etree.ElementTree as ET
 
           root = Path('.')
-          xml_files = list(root.rglob('*.xml'))
-          for path in xml_files:
+          for path in root.rglob('*.xml'):
               ET.parse(path)
           assert (root / 'app/src/main/AndroidManifest.xml').is_file()
-          assert (root / 'app/src/main/assets/engine.html').is_file()
-          assert (root / 'app/src/main/java/com/iqonli/ezxlrc/MainActivity.kt').is_file()
-          html = (root / 'app/src/main/assets/engine.html').read_text(encoding='utf-8')
-          scripts = re.findall(r'<script>(.*?)</script>', html, re.S)
-          assert len(scripts) == 1, 'Expected exactly one embedded runtime script'
-          Path('/tmp/ezxlrc-runtime.js').write_text(scripts[0], encoding='utf-8')
-          for path in root.rglob('*'):
-              if path.is_file() and path.suffix in {'.kt', '.kts', '.xml', '.html', '.md', '.yml', '.sh'}:
-                  text = path.read_text(encoding='utf-8', errors='replace')
-                  if '\x00' in text:
-                      raise SystemExit(f'NUL byte found in text source: {path}')
-          print(f'Validated {len(xml_files)} XML files and embedded runtime source.')
+          assert (root / 'app/src/main/assets/js/runtime.js').is_file()
+          assert (root / 'app/src/main/assets/eslyric/sources.json').is_file()
+          assert (root / 'app/src/main/assets/eslyric/library-searchers.zip').is_file()
+          assert not (root / 'app/src/main/assets/engine.html').exists()
+          java_sources = list((root / 'app/src/main').rglob('*.kt'))
+          for path in java_sources:
+              source = path.read_text(encoding='utf-8')
+              if 'android.webkit.WebView' in source or 'WebView(' in source:
+                  raise SystemExit(f'WebView reference remains: {path}')
+          runtime = (root / 'app/src/main/assets/js/runtime.js').read_text(encoding='utf-8')
+          Path('/tmp/ezxlrc-runtime.js').write_text(runtime, encoding='utf-8')
+          print(f'Validated {len(java_sources)} Kotlin files and native runtime assets.')
           PY
           node --check /tmp/ezxlrc-runtime.js
           node tools/runtime_smoke_test.js
@@ -117,7 +115,7 @@ jobs:
       - name: Upload signed APK
         uses: actions/upload-artifact@v4
         with:
-          name: ezXLRC-1.0.1-iqonli-1-signed
+          name: ezXLRC-1.1.0-iqonli-1-signed
           path: |
             app/build/outputs/apk/release/app-release.apk
             app-release.apk.sha256

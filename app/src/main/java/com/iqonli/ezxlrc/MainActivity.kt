@@ -4,14 +4,12 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.WebView
 import android.widget.ArrayAdapter
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -40,8 +38,6 @@ class MainActivity : AppCompatActivity() {
     private var runtime: ScriptRuntime? = null
     private lateinit var contentFrame: FrameLayout
     private lateinit var tabs: TabLayout
-    private var webView: WebView? = null
-    private var searchEngineAvailable = false
 
     private lateinit var sourceSpinner: Spinner
     private lateinit var searchStatus: TextView
@@ -72,14 +68,11 @@ class MainActivity : AppCompatActivity() {
         CrashDiagnostics.markStage(this, "MainActivity.onCreate: ScriptRepository created")
         buildApplicationUi()
         CrashDiagnostics.markStage(this, "MainActivity.onCreate: UI built")
-        val cachedSources = repository.getSources()
-        refreshSourceList(cachedSources)
-        searchStatus.text = if (cachedSources.isEmpty()) {
-            "尚无本地歌词源。点击“更新歌词源”下载。"
-        } else {
-            "已加载 ${cachedSources.size} 个本地歌词源。需要时可手动更新。"
-        }
-        CrashDiagnostics.markStage(this, "MainActivity.onCreate: completed without startup network sync")
+        val bundledSources = repository.getSources()
+        refreshSourceList(bundledSources)
+        searchStatus.text = "已内置 ${bundledSources.size} 个歌词源。搜索时连接对应音乐服务。"
+        initializeSearchEngine()
+        CrashDiagnostics.markStage(this, "MainActivity.onCreate: bundled scripts loaded; no script downloads")
     }
 
     private fun buildApplicationUi() {
@@ -141,41 +134,18 @@ class MainActivity : AppCompatActivity() {
     private fun showPage(page: View) {
         contentFrame.removeAllViews()
         contentFrame.addView(page, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
-        webView?.let { hiddenWebView ->
-            (hiddenWebView.parent as? ViewGroup)?.removeView(hiddenWebView)
-            contentFrame.addView(hiddenWebView, FrameLayout.LayoutParams(dp(1), dp(1), Gravity.BOTTOM or Gravity.END))
-        }
     }
 
     private fun initializeSearchEngine() {
-        try {
-            val hiddenWebView = WebView(this).apply {
-                alpha = 0f
-                isFocusable = false
-                isFocusableInTouchMode = false
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
-                }
-            }
-            val scriptRuntime = ScriptRuntime(this, hiddenWebView)
-            webView = hiddenWebView
-            runtime = scriptRuntime
-            if (::contentFrame.isInitialized) {
-                (hiddenWebView.parent as? ViewGroup)?.removeView(hiddenWebView)
-                contentFrame.addView(hiddenWebView, FrameLayout.LayoutParams(dp(1), dp(1), Gravity.BOTTOM or Gravity.END))
-            }
-            scriptRuntime.initialize {
-                searchEngineAvailable = true
-                searchStatus.text = "搜索引擎已就绪。正在检查歌词源更新…"
-            }
-        } catch (error: Throwable) {
-            searchEngineAvailable = false
-            webView = null
-            runtime = null
-            android.util.Log.e("ezXLRC", "Search engine initialization failed", error)
-            if (::searchStatus.isInitialized) {
-                val reason = listOfNotNull(error.javaClass.simpleName, error.message?.take(120)).joinToString(": ")
-                searchStatus.text = "搜索引擎初始化失败，已禁用在线搜索。\n$reason"
+        if (runtime != null) return
+        val scriptRuntime = ScriptRuntime(this)
+        runtime = scriptRuntime
+        scriptRuntime.initialize { error ->
+            if (isFinishing || isDestroyed) return@initialize
+            searchStatus.text = if (error == null) {
+                "脚本引擎已就绪 · 已内置 ${sources.size} 个歌词源。"
+            } else {
+                "脚本引擎初始化失败：$error"
             }
         }
     }
@@ -208,14 +178,13 @@ class MainActivity : AppCompatActivity() {
         actionRow.addView(makeButton("搜索所选", primary = true) { startSelectedSearch() }, weightedButtonParams())
         actionRow.addView(makeButton("搜索全部", primary = false) { startAllSearch() }, weightedButtonParams())
         column.addView(actionRow)
-        val updateRow = horizontalRow()
-        updateRow.addView(makeButton("更新歌词源", primary = false) { updateSources(force = true) }, weightedButtonParams())
-        updateRow.addView(makeButton("停止搜索", primary = false) { stopSearch() }, weightedButtonParams())
+        val controlRow = horizontalRow()
+        controlRow.addView(makeButton("停止搜索", primary = false) { stopSearch() }, weightedButtonParams())
         searchProgress = ProgressBar(this).apply { visibility = View.GONE }
-        updateRow.addView(searchProgress, LinearLayout.LayoutParams(dp(32), dp(36)).apply { gravity = Gravity.CENTER_VERTICAL })
-        column.addView(updateRow)
+        controlRow.addView(searchProgress, LinearLayout.LayoutParams(dp(32), dp(36)).apply { gravity = Gravity.CENTER_VERTICAL })
+        column.addView(controlRow)
 
-        searchStatus = bodyText("等待歌词源更新。")
+        searchStatus = bodyText("已内置歌词源，正在启动脚本引擎。")
         column.addView(searchStatus)
         resultsContainer = verticalColumn()
         column.addView(resultsContainer)
@@ -356,17 +325,6 @@ class MainActivity : AppCompatActivity() {
         sourceSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, names)
     }
 
-    private fun updateSources(force: Boolean) {
-        if (::searchStatus.isInitialized) searchStatus.text = if (force) "正在更新 ESLyric 歌词源…" else "正在检查 ESLyric 歌词源…"
-        CrashDiagnostics.markStage(this, "updateSources: sync requested")
-        repository.sync(force) { report ->
-            if (isFinishing || isDestroyed) return@sync
-            CrashDiagnostics.markStage(this, "updateSources: sync callback")
-            refreshSourceList(report.sources)
-            val base = "歌词源：${report.sources.size} 个；新增下载 ${report.downloaded} 个，缓存复用 ${report.unchanged} 个。"
-            searchStatus.text = if (report.errors.isEmpty()) base else base + "\n" + report.errors.take(4).joinToString("\n")
-        }
-    }
 
     private fun startSelectedSearch() {
         val index = sourceSpinner.selectedItemPosition - 1
@@ -382,13 +340,8 @@ class MainActivity : AppCompatActivity() {
     private fun startSearch(targets: List<LyricSource>) {
         if (searchInProgress) return
         val activeRuntime = runtime
-        if (activeRuntime == null) {
-            initializeSearchEngine()
-            searchStatus.text = "正在初始化搜索引擎，请稍后再试一次。"
-            return
-        }
-        if (!searchEngineAvailable || !activeRuntime.isReady) {
-            searchStatus.text = "搜索引擎尚未就绪，或当前设备上的 WebView 初始化失败。"
+        if (activeRuntime == null || !activeRuntime.isReady) {
+            searchStatus.text = "脚本引擎尚未就绪，请稍后再试。"
             return
         }
         if (targets.isEmpty()) {

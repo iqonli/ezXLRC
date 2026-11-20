@@ -1,0 +1,237 @@
+{
+  "upstream": {
+    "repository": "https://github.com/ESLyric/scripts",
+    "commit": "32244ac30ffb8f6fd9ff6d03a1dcce389b5c1600",
+    "manifest": "upstream/archive/version.json"
+  },
+  "library": {
+    "archive": "Library/eslscripts.zip",
+    "archiveSha256": "714f2ef3ea1684f4f6be8907ee1bc54044ca44c3eb013db8653af320801ee4a7",
+    "bundledArchive": "library-searchers.zip",
+    "bundledSha256": "801bd56f9d59f9988151d1b3d9aad0855b655a3ea340538e44a143adcce77247",
+    "activeLegacySearchers": [
+      "kuwo.js",
+      "netease_ex.js",
+      "qqmusic_ex.js"
+    ],
+    "supersededDuplicateSearchers": [
+      "kugou.js",
+      "musixmatch.js",
+      "netease.js",
+      "qqmusic.js"
+    ],
+    "nativeParserReplacement": true
+  },
+  "sources": [
+    {
+      "name": "酷狗音乐",
+      "version": "0.1",
+      "author": "anonymous",
+      "uri": "upstream/searcher/kugou.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "Musixmatch (Synced)",
+      "version": "0.3",
+      "author": "Community",
+      "uri": "upstream/searcher/musixmatch.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "网易云音乐",
+      "version": "0.3",
+      "author": "ohyeah",
+      "uri": "upstream/searcher/netease.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "NetEase - English (Synced)",
+      "version": "0.4",
+      "author": "ohyeah & TT",
+      "uri": "upstream/searcher/netease_en.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "QQ音乐",
+      "version": "0.1",
+      "author": "ohyeah",
+      "uri": "upstream/searcher/qqmusic.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "MiniLyrics (Synced)",
+      "version": "0.5",
+      "author": "ohyeah & TT",
+      "uri": "upstream/searcher/minilyrics.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "LRCLIB (Mixed)",
+      "version": "0.1",
+      "author": "TT",
+      "uri": "upstream/searcher/lrclib.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "Genius (Unsynced)",
+      "version": "0.4",
+      "author": "Community",
+      "uri": "upstream/searcher/genius.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "AZLyrics (Unsynced)",
+      "version": "0.2",
+      "author": "ohyeah & TT",
+      "uri": "upstream/searcher/azlyrics.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "AbsoluteLyrics (Unsynced)",
+      "version": "0.1",
+      "author": "TT",
+      "uri": "upstream/searcher/absolutelyrics.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "Bandcamp (Unsynced)",
+      "version": "0.1",
+      "author": "TT",
+      "uri": "upstream/searcher/bandcamp.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "ChartLyrics (Unsynced)",
+      "version": "0.1",
+      "author": "TT",
+      "uri": "upstream/searcher/chartlyrics.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "DarkLyrics (Unsynced)",
+      "version": "0.1",
+      "author": "TT",
+      "uri": "upstream/searcher/darklyrics.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "eLyrics (Unsynced)",
+      "version": "0.1",
+      "author": "TT",
+      "uri": "upstream/searcher/elyrics.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "Letras (Unsynced)",
+      "version": "0.2",
+      "author": "TT",
+      "uri": "upstream/searcher/letras.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "Lyrical Nonsense - Japanese (Unsynced)",
+      "version": "0.1",
+      "author": "TT",
+      "uri": "upstream/searcher/lyricalnonsense.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "Lyrical Nonsense - English (Unsynced)",
+      "version": "0.1",
+      "author": "TT",
+      "uri": "upstream/searcher/lyricalnonsense_en.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "LyricsMania (Unsynced)",
+      "version": "0.1",
+      "author": "TT",
+      "uri": "upstream/searcher/lyricsmania.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "LyricsMode (Unsynced)",
+      "version": "0.1",
+      "author": "TT",
+      "uri": "upstream/searcher/lyricsmode.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "LyricsTranslate (Unsynced)",
+      "version": "0.1",
+      "author": "TT",
+      "uri": "upstream/searcher/lyricstranslate.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "OldieLyrics (Unsynced)",
+      "version": "0.1",
+      "author": "TT",
+      "uri": "upstream/searcher/oldielyrics.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "PLyrics (Unsynced)",
+      "version": "0.1",
+      "author": "TT",
+      "uri": "upstream/searcher/plyrics.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "SongLyrics (Unsynced)",
+      "version": "0.1",
+      "author": "TT",
+      "uri": "upstream/searcher/songlyrics.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "STLyrics (Unsynced)",
+      "version": "0.1",
+      "author": "TT",
+      "uri": "upstream/searcher/stlyrics.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "Lololyrics (Unsynced)",
+      "version": "0.2",
+      "author": "TT",
+      "uri": "upstream/searcher/lololyrics.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "Metallum (Unsynced)",
+      "version": "0.1",
+      "author": "TT",
+      "uri": "upstream/searcher/metallum.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "SongMeanings (Unsynced)",
+      "version": "0.1",
+      "author": "TT",
+      "uri": "upstream/searcher/songmeanings.js",
+      "origin": "ESLyric/scripts"
+    },
+    {
+      "name": "酷我音乐",
+      "version": "archive",
+      "author": "ESLyric Sample",
+      "uri": "library/searcher/kuwo.js",
+      "origin": "Library eslscripts.zip"
+    },
+    {
+      "name": "网易云音乐 Ex",
+      "version": "0.2",
+      "author": "ohyeah / Robotxm",
+      "uri": "library/searcher/netease_ex.js",
+      "origin": "Library eslscripts.zip"
+    },
+    {
+      "name": "QQ 音乐 Ex",
+      "version": "0.2",
+      "author": "ohyeah / Robotxm",
+      "uri": "library/searcher/qqmusic_ex.js",
+      "origin": "Library eslscripts.zip"
+    }
+  ]
+}
